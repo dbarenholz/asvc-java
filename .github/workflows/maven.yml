@@ -19,4 +19,4 @@ jobs:
           java-version: 13
       -
         name: 'Build project with maven'
-        run: 'mvn -B package --file pom.xml'
+        run: 'mvn javafx:compile --file pom.xml'
