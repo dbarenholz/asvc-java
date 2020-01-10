@@ -15,29 +15,33 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <!-- LOGGING -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup  (SCRAPING) -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.11.3</version>
         </dependency>
 
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.openjfx/javafx &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.openjfx</groupId>-->
-<!--            <artifactId>javafx</artifactId>-->
-<!--            <version>13</version>-->
-<!--            <type>pom</type>-->
-<!--        </dependency>-->
-
-        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
+        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics (GUI) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>13</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls (GUI) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
