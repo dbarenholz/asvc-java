@@ -1,23 +1,20 @@
 package com.dbarenholz.asvc;
 
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.application.Application;;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.dbarenholz.asvc.vocabitem.VocabItem;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ASVC Application class.
@@ -30,7 +27,6 @@ public class App extends Application {
     // === Variables === //
     private static final Logger logger = LogManager.getLogger();
 
-    // === Helpers === //
     /**
      * Checks if there is a .ini file present for user settings.
      *
@@ -50,103 +46,6 @@ public class App extends Application {
             return false;
         }
         return true;
-    }
-
-    private Tab mainTab() {
-        Tab tab = new Tab("ASVC");
-        GridPane container = new GridPane();
-        Label temp = new Label("ASVC Tab");
-
-        container.add(temp, 0, 0);
-
-        tab.setContent(container);
-        return tab;
-    }
-
-    /**
-     * Creates the about tab for the ASVC application.
-     *
-     * @return about tab
-     */
-    private Tab aboutTab() {
-        Tab tab = new Tab("About");
-
-        GridPane container = new GridPane();
-        Label temp = new Label("About Tab");
-
-        container.add(temp, 0, 0);
-
-        tab.setContent(container);
-        return tab;
-    }
-
-    /**
-     * Creates the settings tab for the ASVC application
-     *
-     * @return settings tab
-     */
-    private Tab settingsTab() {
-        Tab tab = new Tab("Settings");
-
-        GridPane container = new GridPane();
-        Button updateButton = new Button("Reload from .ini");
-        Button saveButton = new Button("Save to .ini");
-
-        updateButton.setOnAction(e -> {
-            if (!Settings.readFromIni()) {
-                logger.warn("Could not reload settings from ini.");
-            }
-        });
-
-        saveButton.setOnAction(e -> {
-            if (!Settings.writeToIni()) {
-                logger.warn("Could not write settings to ini.");
-            }
-        });
-
-        container.add(updateButton, 0, 0);
-        container.add(saveButton, 1, 0);
-
-        tab.setContent(container);
-        return tab;
-    }
-
-    /**
-     * Creates tab pane.
-     *
-     * @return tab pane
-     */
-    private TabPane buildTabPane() {
-        TabPane tabPane = new TabPane();
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        tabPane.setTabDragPolicy(TabPane.TabDragPolicy.FIXED);
-        return tabPane;
-    }
-
-    // === Methods === //
-    /**
-     * Helper method to build the GUI.
-     */
-    private void createGUI(Stage stage) {
-        logger.info("Build application GUI...");
-
-        // Create list of all tabs of application
-        List<Tab> tabs = new ArrayList<>();
-        tabs.add(mainTab());
-        tabs.add(settingsTab());
-        tabs.add(aboutTab());
-
-        // Add all created tabs to the root
-        TabPane rootTabPane = buildTabPane();
-        rootTabPane.getTabs().addAll(tabs);
-
-        // Add root to the scene, and set the scene
-        Scene scene = new Scene(rootTabPane, Settings.prefWidth, Settings.prefHeight);
-        stage.setMinWidth(Settings.minWidth);
-        stage.setMinHeight(Settings.minHeight);
-        stage.setScene(scene);
-        stage.setTitle(Settings.applicationTitle);
-        stage.show();
     }
 
     /**
@@ -169,6 +68,271 @@ public class App extends Application {
         }
     }
 
+    private boolean internetAvailable() {
+        // TODO: Use jSoup to check if internet connection exists.
+        return false;
+    }
+
+    // === GUI Helpers === //
+    private void restart() {
+        // TODO: Implement restarting functionality.
+    }
+
+    private VBox step6(HBox root) {
+        VBox container = new VBox();
+
+        Label stepSixLabel = new Label("Step 6");
+        Label stepSixSubLabel = new Label("Enjoy!");
+        Button nextButton = new Button("Restart");
+
+        container.getChildren().add(stepSixLabel);
+        container.getChildren().add(stepSixSubLabel);
+        container.getChildren().add(nextButton);
+
+        nextButton.setOnAction(e -> {
+            // TODO: Button functionality of final step...
+            // add here.
+
+            // Move to next view
+            Region nextContainer = step1(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving back to step 1...");
+        });
+
+        return container;
+    }
+
+    private VBox step5(HBox root) {
+        VBox container = new VBox();
+
+        Label stepFiveLabel = new Label("Step 5");
+        Label stepFiveSubLabel = new Label("Set exporting options");
+
+        Button nextButton = new Button("Next");
+
+        container.getChildren().add(stepFiveLabel);
+        container.getChildren().add(stepFiveSubLabel);
+        container.getChildren().add(nextButton);
+
+
+
+        nextButton.setOnAction(e -> {
+            // TODO: Button functionality of first step...
+            // add here.
+
+            // Move to next view
+            Region nextContainer = step6(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 6...");
+        });
+
+        return container;
+    }
+
+    private VBox step4(HBox root) {
+        VBox container = new VBox();
+
+        // TODO: Set font styles
+        Label stepFourLabel = new Label("Step 4");
+        Label stepFourSubLabel = new Label("Verify scraped results");
+
+        // Create editable tableview
+        TableView<VocabItem> vocabTable = new TableView<>();
+        vocabTable.setEditable(true);
+
+        // build table columns
+        TableColumn<VocabItem, String> kanjiColumn = new TableColumn<>("Kanji");
+        kanjiColumn.setCellValueFactory(new PropertyValueFactory<>("kanji"));
+
+        TableColumn<VocabItem, String> kanaColumn = new TableColumn<>("Kana");
+        kanaColumn.setCellValueFactory(new PropertyValueFactory<>("kana"));
+
+        vocabTable.getColumns().add(kanjiColumn);
+        vocabTable.getColumns().add(kanaColumn);
+
+        // add table items
+        vocabTable.getItems().add(new VocabItem("私", "kanaa")); //watashi
+        vocabTable.getItems().add(new VocabItem("僕", "kanoo")); //boku
+
+        Button nextButton = new Button("Looks good!");
+
+        container.getChildren().add(stepFourLabel);
+        container.getChildren().add(stepFourSubLabel);
+        container.getChildren().add(new VBox(vocabTable));
+        container.getChildren().add(nextButton);
+
+        nextButton.setOnAction(e -> {
+            // TODO: Button functionality of fourth step...
+            // add here.
+
+            // Move to next view
+            Region nextContainer = step5(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 5...");
+        });
+
+        return container;
+    }
+
+    private VBox step3(HBox root) {
+        VBox container = new VBox();
+
+        // TODO: set bold style and font
+        Label stepThreeLabel = new Label("Step 3");
+        Label stepThreeSubLabel = new Label("Set scraping settings");
+
+        CheckBox kanaBuiltIn = new CheckBox("Use built-in kana (kuromoji)");
+        CheckBox kanaJisho = new CheckBox("Use kana from Jisho");
+        CheckBox sentenceJisho = new CheckBox("Use sentence from Jisho");
+        CheckBox sentenceTatoeba = new CheckBox("Use sentence from Tatoeba");
+        CheckBox audioForvo = new CheckBox("Use audio from Forvo");
+        CheckBox audioOJAD = new CheckBox("Use (generated) audio from OJAD");
+
+        GridPane internetPane = new GridPane();
+        Label noInternetLabel = new Label("Internet is not available at the moment...");
+        Button retryInternetButton = new Button("Retry Connection");
+        internetPane.add(noInternetLabel, 0, 0);
+        internetPane.add(retryInternetButton, 0, 1);
+
+        Button nextButton = new Button("Scrape!");
+
+        // Ignore IntelliJ 'duplicate' line thing. It's code for GUIs.
+        container.getChildren().add(stepThreeLabel);
+        container.getChildren().add(stepThreeSubLabel);
+        container.getChildren().add(kanaBuiltIn);
+        container.getChildren().add(kanaJisho);
+        container.getChildren().add(sentenceJisho);
+        container.getChildren().add(sentenceTatoeba);
+        container.getChildren().add(audioForvo);
+        container.getChildren().add(audioOJAD);
+        container.getChildren().add(internetPane);
+        container.getChildren().add(nextButton);
+
+        nextButton.setOnAction(e -> {
+            // TODO: Button functionality of third step...
+            // add here.
+
+            // Move to next view
+            Region nextContainer = step4(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 4...");
+        });
+
+        return container;
+    }
+
+    private ScrollPane step2(HBox root) {
+        // TODO: Set scroll direction to vertical
+        ScrollPane container = new ScrollPane();
+        VBox internalContainer = new VBox();
+
+        // TODO: set bold style and font
+        Label stepTwoLabel = new Label("Step 2");
+        Label stepTwoSubLabel = new Label("Check parsed words!");
+
+        ListView<String> parsedWordsList = new ListView<String>();
+        // TODO: add actual items to list in stead of test thing
+        parsedWordsList.getItems().add("Test item");
+        parsedWordsList.getItems().add("Test item 2");
+
+        Button nextButton = new Button("Nice!");
+
+        internalContainer.getChildren().add(stepTwoLabel);
+        internalContainer.getChildren().add(stepTwoSubLabel);
+        internalContainer.getChildren().add(parsedWordsList);
+        internalContainer.getChildren().add(nextButton);
+
+        container.setContent(internalContainer);
+
+        nextButton.setOnAction(e -> {
+            // TODO: Button functionality of second step...
+            // add here.
+
+            // Move to next view
+            Region nextContainer = step3(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 3...");
+        });
+
+        return container;
+    }
+
+    private VBox step1(HBox root) {
+        VBox container = new VBox();
+
+        // TODO: set bold style and font
+        Label stepOneLabel = new Label("Step 1");
+        Label stepOneSubLabel = new Label("Get lyrics...");
+
+        HBox urlBox = new HBox();
+        CheckBox urlCheckbox = new CheckBox("...from url");
+        TextField urlTextfield = new TextField("https://www.lyrical-nonsense.com/lyrics/kenshi-yonezu/lemon/");
+        urlBox.getChildren().add(urlCheckbox);
+        urlBox.getChildren().add(urlTextfield);
+
+        HBox localFileBox = new HBox();
+        CheckBox localFileCheckbox = new CheckBox("...from local file");
+        TextField localFileTextfield = new TextField("/path/to/local/file.txt");
+        localFileBox.getChildren().add(localFileCheckbox);
+        localFileBox.getChildren().add(localFileTextfield);
+
+        CheckBox lyricsCheckbox = new CheckBox("...from pasted lyrics (default)");
+
+        // Set default checkboxes
+        urlCheckbox.setSelected(false);
+        localFileCheckbox.setSelected(false);
+        lyricsCheckbox.setSelected(true);
+
+        TextArea lyrics = new TextArea("Paste lyrics in this text area.");
+
+        Button nextButton = new Button("NEXT");
+
+        container.getChildren().add(stepOneLabel);
+        container.getChildren().add(stepOneSubLabel);
+        container.getChildren().add(urlBox);
+        container.getChildren().add(localFileBox);
+        container.getChildren().add(lyricsCheckbox);
+        container.getChildren().add(lyrics);
+        container.getChildren().add(nextButton);
+
+        nextButton.setOnAction(e -> {
+            // TODO: Button functionality of first step...
+            // add here.
+
+            // Move to next view
+            Region nextContainer = step2(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 2...");
+        });
+
+        return container;
+    }
+
+    /**
+     * Helper method to build the GUI.
+     */
+    private void createGUI(Stage stage) {
+        logger.info("Build application GUI...");
+
+        // Create root element
+        HBox root = new HBox();
+
+        // Start with step 1.
+        VBox container = step1(root);
+        root.getChildren().setAll(container);
+        logger.info("Moving to step 1...");
+
+        // Add root to the scene, and set the scene
+        Scene scene = new Scene(root, Settings.prefWidth, Settings.prefHeight);
+        stage.setMinWidth(Settings.minWidth);
+        stage.setMinHeight(Settings.minHeight);
+        stage.setScene(scene);
+        stage.setTitle(Settings.applicationTitle);
+        stage.show();
+    }
+
+    // === Main Methods === //
+
     /**
      * JavaFX {@code start} method.
      * Initialises application settings and starts application.
@@ -179,6 +343,7 @@ public class App extends Application {
     public void start(Stage applicationStage) {
         initialiseSettings();
         createGUI(applicationStage);
+
         // Log closing of application
         applicationStage.setOnCloseRequest(event -> {
             logger.info("Closing application...");
