@@ -108,13 +108,15 @@ public class App extends Application {
         Label stepFiveLabel = new Label("Step 5");
         Label stepFiveSubLabel = new Label("Set exporting options");
 
-        Button nextButton = new Button("Next");
+        ButtonBar navigation = new ButtonBar();
+        Button nextButton = new Button("Nice!");
+        Button previousButton = new Button("Back");
+        navigation.getButtons().add(previousButton);
+        navigation.getButtons().add(nextButton);
 
         container.getChildren().add(stepFiveLabel);
         container.getChildren().add(stepFiveSubLabel);
-        container.getChildren().add(nextButton);
-
-
+        container.getChildren().add(navigation);
 
         nextButton.setOnAction(e -> {
             // TODO: Button functionality of first step...
@@ -124,6 +126,16 @@ public class App extends Application {
             Region nextContainer = step6(root);
             root.getChildren().setAll(nextContainer);
             logger.info("Moving to step 6...");
+        });
+
+        previousButton.setOnAction(e -> {
+            // TODO: Undo from 5 to 4
+            // add here.
+
+            // Move to previous view
+            Region nextContainer = step4(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 4...");
         });
 
         return container;
@@ -154,12 +166,16 @@ public class App extends Application {
         vocabTable.getItems().add(new VocabItem("私", "kanaa")); //watashi
         vocabTable.getItems().add(new VocabItem("僕", "kanoo")); //boku
 
-        Button nextButton = new Button("Looks good!");
+        ButtonBar navigation = new ButtonBar();
+        Button nextButton = new Button("Nice!");
+        Button previousButton = new Button("Back");
+        navigation.getButtons().add(previousButton);
+        navigation.getButtons().add(nextButton);
 
         container.getChildren().add(stepFourLabel);
         container.getChildren().add(stepFourSubLabel);
         container.getChildren().add(new VBox(vocabTable));
-        container.getChildren().add(nextButton);
+        container.getChildren().add(navigation);
 
         nextButton.setOnAction(e -> {
             // TODO: Button functionality of fourth step...
@@ -169,6 +185,16 @@ public class App extends Application {
             Region nextContainer = step5(root);
             root.getChildren().setAll(nextContainer);
             logger.info("Moving to step 5...");
+        });
+
+        previousButton.setOnAction(e -> {
+            // TODO: Undo from 4 to 3
+            // add here.
+
+            // Move to previous view
+            Region nextContainer = step3(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 3...");
         });
 
         return container;
@@ -194,7 +220,11 @@ public class App extends Application {
         internetPane.add(noInternetLabel, 0, 0);
         internetPane.add(retryInternetButton, 0, 1);
 
-        Button nextButton = new Button("Scrape!");
+        ButtonBar navigation = new ButtonBar();
+        Button nextButton = new Button("Nice!");
+        Button previousButton = new Button("Back");
+        navigation.getButtons().add(previousButton);
+        navigation.getButtons().add(nextButton);
 
         // Ignore IntelliJ 'duplicate' line thing. It's code for GUIs.
         container.getChildren().add(stepThreeLabel);
@@ -206,7 +236,7 @@ public class App extends Application {
         container.getChildren().add(audioForvo);
         container.getChildren().add(audioOJAD);
         container.getChildren().add(internetPane);
-        container.getChildren().add(nextButton);
+        container.getChildren().add(navigation);
 
         nextButton.setOnAction(e -> {
             // TODO: Button functionality of third step...
@@ -216,6 +246,16 @@ public class App extends Application {
             Region nextContainer = step4(root);
             root.getChildren().setAll(nextContainer);
             logger.info("Moving to step 4...");
+        });
+
+        previousButton.setOnAction(e -> {
+            // TODO: Undo from 3 to 2
+            // add here.
+
+            // Move to previous view
+            Region nextContainer = step2(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 2...");
         });
 
         return container;
@@ -235,12 +275,16 @@ public class App extends Application {
         parsedWordsList.getItems().add("Test item");
         parsedWordsList.getItems().add("Test item 2");
 
+        ButtonBar navigation = new ButtonBar();
         Button nextButton = new Button("Nice!");
+        Button previousButton = new Button("Back");
+        navigation.getButtons().add(previousButton);
+        navigation.getButtons().add(nextButton);
 
         internalContainer.getChildren().add(stepTwoLabel);
         internalContainer.getChildren().add(stepTwoSubLabel);
         internalContainer.getChildren().add(parsedWordsList);
-        internalContainer.getChildren().add(nextButton);
+        internalContainer.getChildren().add(navigation);
 
         container.setContent(internalContainer);
 
@@ -252,6 +296,16 @@ public class App extends Application {
             Region nextContainer = step3(root);
             root.getChildren().setAll(nextContainer);
             logger.info("Moving to step 3...");
+        });
+
+        previousButton.setOnAction(e -> {
+            // TODO: Undo from 2 to 1
+            // add here.
+
+            // Move to previous view
+            Region nextContainer = step1(root);
+            root.getChildren().setAll(nextContainer);
+            logger.info("Moving to step 1...");
         });
 
         return container;
