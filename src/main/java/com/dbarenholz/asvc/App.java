@@ -427,6 +427,18 @@ public class App extends Application {
         stage.show();
     }
 
+
+    /**
+     *
+     */
+    private void displayDevelopmentAlert() {
+        Alert alert = new Alert(
+                Alert.AlertType.INFORMATION,
+                "ASVC is still in development. It might not work as expected. With questions, contact dbarenholz on github."
+        );
+
+        alert.showAndWait();
+    }
     // === Main Methods === //
 
     /**
@@ -437,6 +449,7 @@ public class App extends Application {
      */
     @Override
     public void start(Stage applicationStage) {
+        displayDevelopmentAlert();
         initialiseApplication();
         initialiseSettings();
         createGUI(applicationStage);

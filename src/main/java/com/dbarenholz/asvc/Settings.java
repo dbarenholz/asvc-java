@@ -23,17 +23,21 @@ public class Settings {
     // TODO: Set default path
     final static String iniPath = homeDirectory + FS + applicationTitle + FS + "settings.ini";
     final static String applicationPath = homeDirectory + FS + applicationTitle;
-    final static String cachePath = applicationPath + "cache";
+    public static final String cachePath = applicationPath + "cache";
 
-    // === anki settings === //
+    // === exporting settings === //
     final static String ankiProfileName = "User 1";
     final static String mediaPath = System.getenv("APPDATA") + FS + "Anki2" + FS + ankiProfileName + FS + "collection.media";
+    public static String delim = ",";
 
     // === scraping settings === //
     public static final String agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
+    public static final int timeout = 10000;
+    public static final int replaceAfter = 10000; // 10ms
     public static final String jisho = "https://jisho.org/";
     public static final String forvo = "https://forvo.com/";
     public static final String tatoeba = "https://tatoeba.org/";
+
 
 
     // TODO: Implement method to write all settings to ini file
