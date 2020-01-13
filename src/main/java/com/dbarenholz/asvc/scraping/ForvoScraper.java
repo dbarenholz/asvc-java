@@ -18,8 +18,13 @@ import java.util.Base64;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/**
+ * ForvoScraper.
+ *
+ * TODO: Explain what is scraped with this scraper, and how it works.
+ */
 public class ForvoScraper extends Cache {
-    //<editor-fold desc="Singleton">
+
     private static final ForvoScraper fInstance = new ForvoScraper();
 
     private ForvoScraper() {
@@ -28,7 +33,6 @@ public class ForvoScraper extends Cache {
     public static ForvoScraper getForvo() {
         return fInstance;
     }
-    //</editor-fold>
 
     private static final String ID = "forvo";
     // TODO: Convert to local when done
@@ -40,25 +44,32 @@ public class ForvoScraper extends Cache {
      *
      * @param eParamDecoded decoded name to download
      * @param fileName      filename to write to
-     * @throws IOException when something goes wrong.
+     * @throws ForvoDownloadException when something goes wrong.
      */
-    private void downloadAudio(String eParamDecoded, String fileName) throws IOException {
+    private void downloadAudio(String eParamDecoded, String fileName) throws ForvoDownloadException {
         // https://audio00.forvo.com/audios/mp3/b/6/b6_8998474_76_434248_171524.mp3
         String forvoMP3URL = AUDIO_URL + eParamDecoded;
-        // TODO when it works, replace this with Settings.mediaPath + fileName
         File file = new File(Settings.cachePath + fileName);
 
-        URLConnection conn = new URL(forvoMP3URL).openConnection();
-        try (InputStream is = conn.getInputStream()) {
-            try (OutputStream outstream = new FileOutputStream(file)) {
-                byte[] buffer = new byte[4096];
-                int len;
-                while ((len = is.read(buffer)) > 0) {
-                    outstream.write(buffer, 0, len);
+        // Use default Java code for URL connection to save MP3
+        try {
+            URLConnection conn = new URL(forvoMP3URL).openConnection();
+            try (InputStream is = conn.getInputStream()) {
+                try (OutputStream outstream = new FileOutputStream(file)) {
+                    byte[] buffer = new byte[4096];
+                    int len;
+                    while ((len = is.read(buffer)) > 0) {
+                        outstream.write(buffer, 0, len);
+                    }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        }catch (IOException e) {
+            throw new ForvoDownloadException(
+                    "Could not download MP3 file",
+                    eParamDecoded,
+                    fileName,
+                    e
+            );
         }
 
         updateCache(file);
@@ -75,6 +86,7 @@ public class ForvoScraper extends Cache {
         String finalFileName = "";
         String audioPageIdentifier = PAGE_IDENTIFIER + wordString;
 
+        // retrieve document
         Document pageDoc;
         try {
             pageDoc = retrieve(audioPageIdentifier, wordString);
@@ -82,13 +94,14 @@ public class ForvoScraper extends Cache {
             throw new ForvoDownloadException("Cannot retrieve data for word: " + wordString);
         }
 
-        // START COPY FROM MARTIJN (MODIFIED)
+        // select correct elements
         for (Element playElement : pageDoc.getElementsByClass("play")) {
             String onClickText = playElement.attr("onclick");
 
             if (onClickText != null && onClickText.startsWith("Play(")) {
                 onClickText = onClickText.substring(5);
 
+                // tokenizer for getting (forvo page) parameters
                 StringTokenizer s = new StringTokenizer(onClickText, ",");
                 List<String> onClickTokens = new ArrayList<>();
 
@@ -97,8 +110,8 @@ public class ForvoScraper extends Cache {
                 }
 
                 if (onClickTokens.size() >= 5) {
-                    String aParam = onClickTokens.get(0);
-                    String eParam = onClickTokens.get(4);
+                    String aParam = onClickTokens.get(0); // used in filename
+                    String eParam = onClickTokens.get(4); // used for decoding
 
                     if (eParam.startsWith("'") && eParam.endsWith("'") && eParam.length() > 2) {
                         eParam = eParam.substring(1, eParam.length() - 1);
@@ -108,27 +121,18 @@ public class ForvoScraper extends Cache {
                         continue;
                     }
 
+                    // decode eParam
                     String eParamDecoded = new String(Base64.getDecoder().decode(eParam));
 
                     if (eParamDecoded.contains("_76_")) {
                         finalFileName = "forvo" + aParam + ".mp3";
-
-                        try {
-                            downloadAudio(eParamDecoded, finalFileName);
-                        } catch (IOException e) {
-                            throw new ForvoDownloadException(
-                                    "Cannot download audio from Forvo",
-                                    audioPageIdentifier,
-                                    e
-                            );
-                        }
-
+                        // download MP3 file
+                        downloadAudio(eParamDecoded, finalFileName);
                         break;
                     }
                 }
             }
         }
-        // END COPY FROM MARTIJN (MODIFIED)
 
         return finalFileName;
     }

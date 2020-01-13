@@ -11,4 +11,8 @@ public class ForvoDownloadException extends DownloadException {
     public ForvoDownloadException(String message, String page, Exception e) {
         super(message, page, e);
     }
+
+    public ForvoDownloadException(String message, String decodedParam, String fileName, Exception e) {
+        super(message + "\n\tparam: " + decodedParam + "\n\tfilename: " + fileName, e);
+    }
 }
