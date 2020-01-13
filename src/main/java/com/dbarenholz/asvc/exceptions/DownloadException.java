@@ -19,6 +19,14 @@ public class DownloadException extends Exception {
         super(message + page);
     }
 
+    public DownloadException(String message, Exception e) {
+        logger.warn("{}\n\t" +
+                "Exception: {}" +
+                "StackTrace: {}",
+                message,
+                e,
+                e.getStackTrace());
+    }
 
     public DownloadException(String message, String page, Connection.Response response) {
         logger.warn("{}\n\t" +
@@ -30,14 +38,6 @@ public class DownloadException extends Exception {
     }
 
     public DownloadException(String message, String page, Exception e) {
-        logger.warn("{}\n\t" +
-                "Queried page: {}\n\t" +
-                "Exception: {}\n\t" +
-                "StackTrace: {}",
-                message,
-                page,
-                e,
-                e.getStackTrace()
-        );
+        this(message+"\n\tQueried page: " + page, e);
     }
 }

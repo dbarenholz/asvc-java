@@ -17,11 +17,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * A class implementing caching methods. APIs extend this class.
+ * A class implementing hard drive-based caching methods.
  *
- * @author Dani&euml;l Barenholz
- * @version %I%, %G%
- * @since 1.8
+ * Webscrapers from {@link com.dbarenholz.asvc.scraping} extend this class.
  */
 public abstract class Cache {
 

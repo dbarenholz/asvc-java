@@ -12,8 +12,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+/**
+ * Tatoeba Scraper.
+ *
+ * TODO: Explain what this scraper does, and how it works.
+ */
 public class TatoebaScraper extends Cache {
-    //<editor-fold desc="Singleton">
     private static final TatoebaScraper tInstance = new TatoebaScraper();
 
     private TatoebaScraper() {
@@ -22,7 +26,6 @@ public class TatoebaScraper extends Cache {
     public static TatoebaScraper getTatoeba() {
         return tInstance;
     }
-    //</editor-fold>
 
     // Identifier for tatoeba scraper
     private static final String ID = "tatoeba";
@@ -46,7 +49,7 @@ public class TatoebaScraper extends Cache {
      *
      * @param wordString word to retrieve sentence ID for
      * @return ID of sentence of given word
-     * @throws TatoebaDownloadException if something goes wron with downloading
+     * @throws TatoebaDownloadException if something goes wrong with downloading
      */
     private Integer retrieveSentenceID(String wordString) throws TatoebaDownloadException {
         // Set query type

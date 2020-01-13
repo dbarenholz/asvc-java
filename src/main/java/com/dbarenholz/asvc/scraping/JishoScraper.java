@@ -15,9 +15,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Jisho scraper.
+ *
+ * TODO: Explain what is scraped with this scraper, and how it works.
  */
 public class JishoScraper extends Cache {
-    //<editor-fold desc="Singleton">
     private static final JishoScraper jInstance = new JishoScraper();
 
     private JishoScraper() {
@@ -26,7 +27,6 @@ public class JishoScraper extends Cache {
     public static JishoScraper getJisho() {
         return jInstance;
     }
-    //</editor-fold>
 
 
     private static final String ID = "jisho";

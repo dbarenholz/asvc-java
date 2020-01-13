@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.Locale;
 
 /**
- * Comparator for vocabitems.
+ * Comparator for {@link VocabItem}s. Sorts according to a {@link Collator} with locale set to {@link Locale#JAPANESE}.
  */
 public class VocabComparator implements Comparator<VocabItem> {
 
@@ -14,7 +14,9 @@ public class VocabComparator implements Comparator<VocabItem> {
      *
      * @param o1 first object
      * @param o2 second object
-     * @return {@link Collator#compare(String a, String b)}
+     * @return Collator result.
+     *
+     * @see Collator#compare(String a, String b)
      */
     @Override
     public int compare(VocabItem o1, VocabItem o2) {

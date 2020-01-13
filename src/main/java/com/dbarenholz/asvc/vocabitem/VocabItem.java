@@ -3,13 +3,13 @@ package com.dbarenholz.asvc.vocabitem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// import javax.sound.sampled.Clip;
 import java.io.File;
 
 /**
- *
+ * A VocabItem is an object holding all needed information for a word (e.g. 私).
+ * It is the thing that gets exported to Anki / Akebi / ..
  */
-public class VocabItem {
+public class VocabItem implements Comparable<VocabItem> {
     private static final Logger logger = LogManager.getLogger();
 
     // VocabItem defaults
@@ -23,7 +23,6 @@ public class VocabItem {
     private File accentLocation = null;
 
     // TODO Add clip and image in VocabItem directly.
-
     // private Clip audio = null;
     // private Image accent = null;
 
@@ -43,6 +42,7 @@ public class VocabItem {
         logger.info("Created VocabItem {}", this.toString());
     }
 
+    // TODO: Testing purposes. Remove later.
     public VocabItem(String kanji, String kana) {
         this.kanji = kanji;
         this.kana = kana;
@@ -81,9 +81,6 @@ public class VocabItem {
         return accentLocation;
     }
 
-    // == property values == //
-
-
     /**
      * Returns string version of a vocab item as (Kanji, Translation).
      *
@@ -107,5 +104,10 @@ public class VocabItem {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int compareTo(VocabItem other) {
+        return new VocabComparator().compare(this, other);
     }
 }
