@@ -23,7 +23,7 @@ public class Settings {
     // TODO: Set default path
     final static String iniPath = homeDirectory + FS + applicationTitle + FS + "settings.ini";
     final static String applicationPath = homeDirectory + FS + applicationTitle;
-    public static final String cachePath = applicationPath + "cache";
+    public static final String cachePath = applicationPath + FS + "cache";
 
     // === exporting settings === //
     final static String ankiProfileName = "User 1";
@@ -50,14 +50,14 @@ public class Settings {
     }
 
     static String stringify() {
-        String ret = "";
-        ret += "applicationTitle: " + applicationTitle + "\n";
-        ret += "homeDirectory:" + homeDirectory + "\n";
-        ret += "iniPath: " + iniPath + "\n";
-        ret += "applicationPath: " + applicationPath + "\n";
-        ret += "cachePath: " + cachePath + "\n";
-        ret += "ankiProfileName: " + ankiProfileName + "\n";
-        ret += "mediaPath: " + mediaPath + "\n";
+        String ret = "\n";
+        ret += "--> applicationTitle: '" + applicationTitle + "'\n";
+        ret += "--> homeDirectory: '" + homeDirectory + "'\n";
+        ret += "--> iniPath: '" + iniPath + "'\n";
+        ret += "--> applicationPath: '" + applicationPath + "'\n";
+        ret += "--> cachePath: '" + cachePath + "'\n";
+        ret += "--> ankiProfileName: '" + ankiProfileName + "'\n";
+        ret += "--> mediaPath: '" + mediaPath + "'";
         return ret;
     }
 }

@@ -429,14 +429,15 @@ public class App extends Application {
 
 
     /**
-     *
+     * Display an alert with a message from the developer.
      */
     private void displayDevelopmentAlert() {
         Alert alert = new Alert(
                 Alert.AlertType.INFORMATION,
                 "ASVC is still in development. It might not work as expected. With questions, contact dbarenholz on github."
         );
-
+        alert.setHeaderText("Notice");
+        alert.setTitle("ASVC -- Note to user.");
         alert.showAndWait();
     }
     // === Main Methods === //
@@ -451,7 +452,6 @@ public class App extends Application {
     public void start(Stage applicationStage) {
         displayDevelopmentAlert();
         initialiseApplication();
-        initialiseSettings();
         createGUI(applicationStage);
 
         // Log closing of application
