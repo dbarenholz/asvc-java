@@ -15,6 +15,8 @@ import org.apache.logging.log4j.Logger;
 import com.dbarenholz.asvc.vocabitem.VocabItem;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * ASVC Application class.
@@ -25,7 +27,9 @@ import java.io.File;
 public class App extends Application {
 
     // === Variables === //
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger(); // logger
+    public static ArrayList<File> cache = new ArrayList<>();     // file cache representation
+
 
     /**
      * Checks if there is a .ini file present for user settings.
@@ -53,19 +57,57 @@ public class App extends Application {
      */
     private void initialiseSettings() {
         logger.info("Initialise settings...");
-        // Check if .ini file present
+
         if (!settingsIniFilePresent()) {
-            // if not present -- set defaults and save to .ini
             logger.debug("Settings .ini file cannot be used. Creating one...");
             if (!Settings.writeToIni()) {
                 logger.error("Writing settings to ini failed. Closing application...");
             }
         }
-        // .ini is present (newly created, or was already present)
+
         logger.debug("Settings .ini can be used. Setting settings from file...");
+
         if (!Settings.readFromIni()) {
             logger.error("Reading settings from ini failed. Closing application...");
         }
+
+        logger.debug("Settings have been set from .ini as follows: {}", Settings.stringify());
+    }
+
+    private void initialiseCache() {
+        File cache = new File(Settings.cachePath);
+
+        // error checking
+        if (!cache.exists()) {
+            // does not exist
+            logger.debug("Cache does not exist at {}!", Settings.cachePath);
+        } else if (!cache.isDirectory()) {
+            // exists, but no directory
+            logger.debug("Cache at {} is not a directory!", Settings.cachePath);
+        } else if (!cache.canWrite()) {
+            // exists, directory, but cannot write
+            logger.debug("Cannot write to cache at {}", Settings.cachePath);
+        } else if (!cache.canRead()) {
+            // exists, directory can write, cannot read
+            logger.debug("Cannot read from cache at {}", Settings.cachePath);
+        }
+
+        File[] files = cache.listFiles(File::isFile);
+        if (files != null) {
+            logger.debug("Cache contains following items:\n");
+            for(File file : files) {
+                logger.debug("- {}", file.getName());
+            }
+            Collections.addAll(App.cache, files);
+        } else {
+            logger.debug("Cache files was null?");
+        }
+    }
+
+
+    private void initialiseApplication() {
+        initialiseSettings();
+        initialiseCache();
     }
 
     private boolean internetAvailable() {
@@ -395,6 +437,7 @@ public class App extends Application {
      */
     @Override
     public void start(Stage applicationStage) {
+        initialiseApplication();
         initialiseSettings();
         createGUI(applicationStage);
 

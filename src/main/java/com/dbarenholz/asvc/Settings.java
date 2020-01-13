@@ -1,8 +1,5 @@
 package com.dbarenholz.asvc;
 
-import javafx.geometry.Dimension2D;
-import javafx.util.Pair;
-
 /**
  * Settings class.
  *
@@ -10,17 +7,34 @@ import javafx.util.Pair;
  */
 public class Settings {
     // === Non editable settings === //
-    // TODO: Set default application title
-    final static String applicationTitle = "ASVC";
     final static double minWidth = 250.0;
     final static double minHeight = 250.0;
-
-    // === User editable settings for ini === //
     final static double prefWidth = 500.0;
     final static double prefHeight = 500.0;
 
+    // TODO: Set default application title
+    final static String applicationTitle = "ASVC";
+
+    final static String FS = System.getProperty("file.separator");
+    final static String LS = System.getProperty("line.separator");
+    final static String homeDirectory = System.getProperty("user.home");
+
+    // === User editable settings === //
     // TODO: Set default path
-    final static String iniPath = "path/to/file.ini";
+    final static String iniPath = homeDirectory + FS + applicationTitle + FS + "settings.ini";
+    final static String applicationPath = homeDirectory + FS + applicationTitle;
+    final static String cachePath = applicationPath + "cache";
+
+    // === anki settings === //
+    final static String ankiProfileName = "User 1";
+    final static String mediaPath = System.getenv("APPDATA") + FS + "Anki2" + FS + ankiProfileName + FS + "collection.media";
+
+    // === scraping settings === //
+    public static final String agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
+    public static final String jisho = "https://jisho.org/";
+    public static final String forvo = "https://forvo.com/";
+    public static final String tatoeba = "https://tatoeba.org/";
+
 
     // TODO: Implement method to write all settings to ini file
     static boolean writeToIni() {
@@ -29,5 +43,17 @@ public class Settings {
 
     static boolean readFromIni() {
         return false;
+    }
+
+    static String stringify() {
+        String ret = "";
+        ret += "applicationTitle: " + applicationTitle + "\n";
+        ret += "homeDirectory:" + homeDirectory + "\n";
+        ret += "iniPath: " + iniPath + "\n";
+        ret += "applicationPath: " + applicationPath + "\n";
+        ret += "cachePath: " + cachePath + "\n";
+        ret += "ankiProfileName: " + ankiProfileName + "\n";
+        ret += "mediaPath: " + mediaPath + "\n";
+        return ret;
     }
 }
