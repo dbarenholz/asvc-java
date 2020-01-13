@@ -22,14 +22,12 @@ import java.util.Collections;
  * ASVC Application class.
  *
  * TODO: Write class documentation.
- * TODO: Write package.java documentation.
  */
 public class App extends Application {
 
     // === Variables === //
     private static final Logger logger = LogManager.getLogger(); // logger
     public static ArrayList<File> cache = new ArrayList<>();     // file cache representation
-
 
     /**
      * Checks if there is a .ini file present for user settings.
@@ -39,13 +37,16 @@ public class App extends Application {
     private boolean settingsIniFilePresent() {
         logger.debug("Checking {} for ini settings", Settings.iniPath);
         File tempFileObject = new File(Settings.iniPath);
-        // Check for existence, reading and writing
+
         if (!tempFileObject.exists()) {
+            // does not exist
             return false;
         } else if (!tempFileObject.canRead()) {
+            // exists, cannot read
             logger.debug("File exists at previously logged path, but application cannot read.");
             return false;
         } else if (!tempFileObject.canWrite()){
+            // exists, cannot write
             logger.debug("File exists at previously logged path, but application cannot write.");
             return false;
         }
@@ -74,10 +75,12 @@ public class App extends Application {
         logger.debug("Settings have been set from .ini as follows: {}", Settings.stringify());
     }
 
+    /**
+     * Helper method to initialise application cache.
+     */
     private void initialiseCache() {
         File cache = new File(Settings.cachePath);
 
-        // error checking
         if (!cache.exists()) {
             // does not exist
             logger.debug("Cache does not exist at {}!", Settings.cachePath);
@@ -100,26 +103,42 @@ public class App extends Application {
             }
             Collections.addAll(App.cache, files);
         } else {
-            logger.debug("Cache files was null?");
+            logger.debug("Cache files was null. Possibly empty!");
         }
     }
 
-
+    /**
+     * Helper method to initialise application.
+     */
     private void initialiseApplication() {
         initialiseSettings();
         initialiseCache();
     }
 
+    /**
+     * Helper method for checking if there is a usable internet connection.
+     * @return {@code true} if there is a useable internet connection, {@code false} otherwise.
+     */
     private boolean internetAvailable() {
-        // TODO: Use jSoup to check if internet connection exists.
+        // TODO: Check if internet connection is available.
         return false;
     }
 
     // === GUI Helpers === //
+
+    /**
+     * Helper method for GUI. Called when done with a first song, and the user wants to restart for another one.
+     */
     private void restart() {
         // TODO: Implement restarting functionality.
     }
 
+    /**
+     * Helper method for GUI. Creates a layout.
+     *
+     * @param root application GUI root
+     * @return the layout of this step.
+     */
     private VBox step6(HBox root) {
         VBox container = new VBox();
 
@@ -144,6 +163,12 @@ public class App extends Application {
         return container;
     }
 
+    /**
+     * Helper method for GUI. Creates a layout.
+     *
+     * @param root application GUI root
+     * @return the layout of this step.
+     */
     private VBox step5(HBox root) {
         VBox container = new VBox();
 
@@ -183,10 +208,15 @@ public class App extends Application {
         return container;
     }
 
+    /**
+     * Helper method for GUI. Creates a layout.
+     *
+     * @param root application GUI root
+     * @return the layout of this step.
+     */
     private VBox step4(HBox root) {
         VBox container = new VBox();
 
-        // TODO: Set font styles
         Label stepFourLabel = new Label("Step 4");
         Label stepFourSubLabel = new Label("Verify scraped results");
 
@@ -242,10 +272,15 @@ public class App extends Application {
         return container;
     }
 
+    /**
+     * Helper method for GUI. Creates a layout.
+     *
+     * @param root application GUI root
+     * @return the layout of this step.
+     */
     private VBox step3(HBox root) {
         VBox container = new VBox();
 
-        // TODO: set bold style and font
         Label stepThreeLabel = new Label("Step 3");
         Label stepThreeSubLabel = new Label("Set scraping settings");
 
@@ -303,12 +338,17 @@ public class App extends Application {
         return container;
     }
 
+    /**
+     * Helper method for GUI. Creates a layout.
+     *
+     * @param root application GUI root
+     * @return the layout of this step.
+     */
     private ScrollPane step2(HBox root) {
         // TODO: Set scroll direction to vertical
         ScrollPane container = new ScrollPane();
         VBox internalContainer = new VBox();
 
-        // TODO: set bold style and font
         Label stepTwoLabel = new Label("Step 2");
         Label stepTwoSubLabel = new Label("Check parsed words!");
 
@@ -353,10 +393,15 @@ public class App extends Application {
         return container;
     }
 
+    /**
+     * Helper method for GUI. Creates a layout.
+     *
+     * @param root application GUI root
+     * @return the layout of this step.
+     */
     private VBox step1(HBox root) {
         VBox container = new VBox();
 
-        // TODO: set bold style and font
         Label stepOneLabel = new Label("Step 1");
         Label stepOneSubLabel = new Label("Get lyrics...");
 
@@ -427,10 +472,7 @@ public class App extends Application {
         stage.show();
     }
 
-
-    /**
-     * Display an alert with a message from the developer.
-     */
+    // == Dev Method == //
     private void displayDevelopmentAlert() {
         Alert alert = new Alert(
                 Alert.AlertType.INFORMATION,
@@ -440,6 +482,8 @@ public class App extends Application {
         alert.setTitle("ASVC -- Note to user.");
         alert.showAndWait();
     }
+    // == Dev Method == //
+
     // === Main Methods === //
 
     /**
@@ -450,8 +494,13 @@ public class App extends Application {
      */
     @Override
     public void start(Stage applicationStage) {
+        // Show the development alert
         displayDevelopmentAlert();
+
+        // Init the entire application
         initialiseApplication();
+
+        // Create (and show) the GUI.
         createGUI(applicationStage);
 
         // Log closing of application
