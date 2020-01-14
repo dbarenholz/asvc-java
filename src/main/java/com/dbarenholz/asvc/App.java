@@ -10,6 +10,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import com.atilika.kuromoji.unidic.Token;
+import com.atilika.kuromoji.unidic.Tokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.dbarenholz.asvc.vocabitem.VocabItem;
@@ -17,6 +19,8 @@ import com.dbarenholz.asvc.vocabitem.VocabItem;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * ASVC Application class.
@@ -28,6 +32,7 @@ public class App extends Application {
     // === Variables === //
     private static final Logger logger = LogManager.getLogger(); // logger
     public static ArrayList<File> cache = new ArrayList<>();     // file cache representation
+    private HashSet<String> words = new HashSet<>();         // step 1 words
 
     /**
      * Checks if there is a .ini file present for user settings.
@@ -436,9 +441,49 @@ public class App extends Application {
         container.getChildren().add(lyrics);
         container.getChildren().add(nextButton);
 
+        // == checkbox logic == //
+        urlCheckbox.setOnAction(e -> {
+            if (urlCheckbox.isSelected()) {
+                localFileCheckbox.setSelected(false);
+                lyricsCheckbox.setSelected(false);
+            }
+        });
+
+        localFileCheckbox.setOnAction(e -> {
+            if (localFileCheckbox.isSelected()) {
+                urlCheckbox.setSelected(false);
+                lyricsCheckbox.setSelected(false);
+            }
+        });
+
+        lyricsCheckbox.setOnAction(e -> {
+            if (lyricsCheckbox.isSelected()) {
+                urlCheckbox.setSelected(false);
+                localFileCheckbox.setSelected(false);
+            }
+        });
+
         nextButton.setOnAction(e -> {
-            // TODO: Button functionality of first step...
-            // add here.
+            if (urlCheckbox.isSelected()) {
+                throw new UnsupportedOperationException("Scraping from URL for lyrics is not yet implemented.");
+            } else if (localFileCheckbox.isSelected()) {
+                throw new UnsupportedOperationException("Retrieving text from local file is not yet implemented.");
+            } else if (lyricsCheckbox.isSelected()) {
+                // Retrieve lyrics from text area
+                String unparsedLyrics = lyrics.getText();
+                Tokenizer tokenizer = new Tokenizer();
+
+                // Create tokens
+                List<Token> tokens = tokenizer.tokenize(unparsedLyrics);
+
+                tokens.stream()
+                        .filter(token -> !token.getWrittenBaseForm().matches("([\u3041-\u3093\u30a1-\u30f3]+)"))
+                        .filter(token -> !token.getWrittenBaseForm().matches("\\*"))
+                        .forEach(token -> words.add(token.getWrittenBaseForm()));
+                words.forEach(word -> logger.debug("Added word:  {}", word));
+            } else {
+                logger.info("None of the checkboxes are selected. This should not happen.");
+            }
 
             // Move to next view
             Region nextContainer = step2(root);
