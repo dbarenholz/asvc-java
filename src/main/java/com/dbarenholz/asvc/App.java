@@ -17,10 +17,14 @@ import org.apache.logging.log4j.Logger;
 import com.dbarenholz.asvc.vocabitem.VocabItem;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ASVC Application class.
@@ -127,6 +131,31 @@ public class App extends Application {
     private boolean internetAvailable() {
         // TODO: Check if internet connection is available.
         return false;
+    }
+
+    /**
+     * Helper method for step1; parses an unparsed string and adds its words to the list.
+     *
+     * @param unparsedLyrics unparsed lyrics
+     */
+    private void addParsedWordsToList(String unparsedLyrics) {
+        Tokenizer tokenizer = new Tokenizer();
+
+        // Create tokens
+        List<Token> tokens = tokenizer.tokenize(unparsedLyrics);
+
+        // TODO: Filter out below incorrect items
+        //                01:23:51.140 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  　
+//        01:27:18.183 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  　
+
+        tokens.stream()
+                .filter(token -> !token.getWrittenBaseForm().matches("([\u3041-\u3093\u30a1-\u30f3]+)")) // kana
+                .filter(token -> !token.getWrittenBaseForm().matches("\\*"))                             // *
+                .filter(token -> !token.getWrittenBaseForm().matches("\\["))                             // [
+                .filter(token -> !token.getWrittenBaseForm().matches("]"))                               // ]
+                .filter(token -> !token.getWrittenBaseForm().matches("　"))                              // (space)
+                .forEach(token -> words.add(token.getWrittenBaseForm()));
+        words.forEach(word -> logger.debug("Added word:  {}", word));
     }
 
     // === GUI Helpers === //
@@ -418,7 +447,7 @@ public class App extends Application {
 
         HBox localFileBox = new HBox();
         CheckBox localFileCheckbox = new CheckBox("...from local file");
-        TextField localFileTextfield = new TextField("/path/to/local/file.txt");
+        TextField localFileTextfield = new TextField("C:\\Users\\s165839\\Documents\\ASVC\\testLyrics.txt");
         localFileBox.getChildren().add(localFileCheckbox);
         localFileBox.getChildren().add(localFileTextfield);
 
@@ -467,20 +496,23 @@ public class App extends Application {
             if (urlCheckbox.isSelected()) {
                 throw new UnsupportedOperationException("Scraping from URL for lyrics is not yet implemented.");
             } else if (localFileCheckbox.isSelected()) {
-                throw new UnsupportedOperationException("Retrieving text from local file is not yet implemented.");
+                try {
+                    String unparsedLyrics = Files.lines(Paths.get(localFileTextfield.getText()))
+                            .collect(Collectors.toList())
+                            .toString();
+
+                    addParsedWordsToList(unparsedLyrics);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+//                01:23:51.144 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  [
+//                01:23:51.144 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  ]
+//                01:23:51.140 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  　
+
+//                throw new UnsupportedOperationException("Retrieving text from local file is not yet implemented.");
             } else if (lyricsCheckbox.isSelected()) {
-                // Retrieve lyrics from text area
                 String unparsedLyrics = lyrics.getText();
-                Tokenizer tokenizer = new Tokenizer();
-
-                // Create tokens
-                List<Token> tokens = tokenizer.tokenize(unparsedLyrics);
-
-                tokens.stream()
-                        .filter(token -> !token.getWrittenBaseForm().matches("([\u3041-\u3093\u30a1-\u30f3]+)"))
-                        .filter(token -> !token.getWrittenBaseForm().matches("\\*"))
-                        .forEach(token -> words.add(token.getWrittenBaseForm()));
-                words.forEach(word -> logger.debug("Added word:  {}", word));
+                addParsedWordsToList(unparsedLyrics);
             } else {
                 logger.info("None of the checkboxes are selected. This should not happen.");
             }
