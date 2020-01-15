@@ -27,6 +27,12 @@
             <version>2.13.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.atilika.kuromoji</groupId>
+            <artifactId>kuromoji-unidic-kanaaccent</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup  (SCRAPING) -->
         <dependency>
             <groupId>org.jsoup</groupId>

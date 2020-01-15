@@ -1,6 +1,8 @@
 package com.dbarenholz.asvc;
 
-import javafx.application.Application;;
+import com.atilika.kuromoji.unidic.kanaaccent.Tokenizer;
+import com.dbarenholz.asvc.vocabitem.VocabItem;
+import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -9,14 +11,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.dbarenholz.asvc.vocabitem.VocabItem;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * ASVC Application class.
@@ -28,6 +33,7 @@ public class App extends Application {
     // === Variables === //
     private static final Logger logger = LogManager.getLogger(); // logger
     public static ArrayList<File> cache = new ArrayList<>();     // file cache representation
+    private HashSet<VocabItem> words = new HashSet<>();          // words
 
     /**
      * Checks if there is a .ini file present for user settings.
@@ -122,6 +128,40 @@ public class App extends Application {
     private boolean internetAvailable() {
         // TODO: Check if internet connection is available.
         return false;
+    }
+
+    /**
+     * Helper method for step1; parses an unparsed string and adds its words to the list.
+     *
+     * @param unparsedLyrics unparsed lyrics
+     */
+    private void addParsedWordsToList(String unparsedLyrics) {
+        new Tokenizer()
+                .tokenize(unparsedLyrics)
+                .stream()
+                .filter(token -> !token.getWrittenBaseForm().matches("([\u3041-\u3093\u30a1-\u30f3]+)")) // kana
+                .filter(token -> !token.getWrittenBaseForm().matches("[0-9]*"))                          // numbers
+                .filter(token -> !token.getWrittenBaseForm().matches("\\*"))                             // *
+                .filter(token -> !token.getWrittenBaseForm().matches("\\["))                             // [
+                .filter(token -> !token.getWrittenBaseForm().matches("]"))                               // ]
+                .filter(token -> !token.getWrittenBaseForm().matches("　"))                              // (space)
+                .filter(token -> !token.getWrittenBaseForm().matches("”"))                               // ”
+                .filter(token -> !token.getWrittenBaseForm().matches("“"))                               // “
+                .filter(token -> !token.getWrittenBaseForm().matches("）"))                              // ）
+                .filter(token -> !token.getWrittenBaseForm().matches("「"))                              // 「
+                .filter(token -> !token.getWrittenBaseForm().matches("」"))                              // 」
+                .filter(token -> !token.getWrittenBaseForm().matches("『"))                              // 『
+                .filter(token -> !token.getWrittenBaseForm().matches("（"))                              // （
+                .filter(token -> !token.getWrittenBaseForm().matches("、"))                              // 、
+                .filter(token -> !token.getWrittenBaseForm().matches("。"))                              // 。
+                .filter(token -> !token.getWrittenBaseForm().matches("!"))                               // !
+                .filter(token -> !token.getWrittenBaseForm().matches("F"))                               // F
+                .filter(token -> !token.getWrittenBaseForm().matches("J"))                               // J
+                .filter(token -> !token.getWrittenBaseForm().matches("M"))                               // M
+                .filter(token -> !token.getWrittenBaseForm().matches("・"))                              // ・
+                .map(token -> new VocabItem(token.getWrittenBaseForm(), token.getKanaBase()))
+                .forEach(vocabItem -> words.add(vocabItem));
+        words.forEach(word -> logger.debug("Added word:  {}", word));
     }
 
     // === GUI Helpers === //
@@ -413,7 +453,7 @@ public class App extends Application {
 
         HBox localFileBox = new HBox();
         CheckBox localFileCheckbox = new CheckBox("...from local file");
-        TextField localFileTextfield = new TextField("/path/to/local/file.txt");
+        TextField localFileTextfield = new TextField("C:\\Users\\s165839\\Documents\\ASVC\\testLyrics.txt");
         localFileBox.getChildren().add(localFileCheckbox);
         localFileBox.getChildren().add(localFileTextfield);
 
@@ -436,9 +476,52 @@ public class App extends Application {
         container.getChildren().add(lyrics);
         container.getChildren().add(nextButton);
 
+        // == checkbox logic == //
+        urlCheckbox.setOnAction(e -> {
+            if (urlCheckbox.isSelected()) {
+                localFileCheckbox.setSelected(false);
+                lyricsCheckbox.setSelected(false);
+            }
+        });
+
+        localFileCheckbox.setOnAction(e -> {
+            if (localFileCheckbox.isSelected()) {
+                urlCheckbox.setSelected(false);
+                lyricsCheckbox.setSelected(false);
+            }
+        });
+
+        lyricsCheckbox.setOnAction(e -> {
+            if (lyricsCheckbox.isSelected()) {
+                urlCheckbox.setSelected(false);
+                localFileCheckbox.setSelected(false);
+            }
+        });
+
         nextButton.setOnAction(e -> {
-            // TODO: Button functionality of first step...
-            // add here.
+            if (urlCheckbox.isSelected()) {
+                throw new UnsupportedOperationException("Scraping from URL for lyrics is not yet implemented.");
+            } else if (localFileCheckbox.isSelected()) {
+                try {
+                    String unparsedLyrics = Files.lines(Paths.get(localFileTextfield.getText()))
+                            .collect(Collectors.toList())
+                            .toString();
+
+                    addParsedWordsToList(unparsedLyrics);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+//                01:23:51.144 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  [
+//                01:23:51.144 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  ]
+//                01:23:51.140 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  　
+
+//                throw new UnsupportedOperationException("Retrieving text from local file is not yet implemented.");
+            } else if (lyricsCheckbox.isSelected()) {
+                String unparsedLyrics = lyrics.getText();
+                addParsedWordsToList(unparsedLyrics);
+            } else {
+                logger.info("None of the checkboxes are selected. This should not happen.");
+            }
 
             // Move to next view
             Region nextContainer = step2(root);
