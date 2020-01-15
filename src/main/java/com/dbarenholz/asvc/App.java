@@ -1,6 +1,8 @@
 package com.dbarenholz.asvc;
 
-import javafx.application.Application;;
+import com.atilika.kuromoji.unidic.kanaaccent.Tokenizer;
+import com.dbarenholz.asvc.vocabitem.VocabItem;
+import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -9,12 +11,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import com.atilika.kuromoji.unidic.kanaaccent.Token;
-import com.atilika.kuromoji.unidic.kanaaccent.Tokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.dbarenholz.asvc.vocabitem.VocabItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +33,7 @@ public class App extends Application {
     // === Variables === //
     private static final Logger logger = LogManager.getLogger(); // logger
     public static ArrayList<File> cache = new ArrayList<>();     // file cache representation
-    private HashSet<VocabItem> words = new HashSet<>();             // step 1 words
+    private HashSet<VocabItem> words = new HashSet<>();          // words
 
     /**
      * Checks if there is a .ini file present for user settings.
