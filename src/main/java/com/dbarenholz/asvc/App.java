@@ -10,8 +10,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import com.atilika.kuromoji.unidic.Token;
-import com.atilika.kuromoji.unidic.Tokenizer;
+import com.atilika.kuromoji.unidic.kanaaccent.Token;
+import com.atilika.kuromoji.unidic.kanaaccent.Tokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.dbarenholz.asvc.vocabitem.VocabItem;
@@ -36,7 +36,7 @@ public class App extends Application {
     // === Variables === //
     private static final Logger logger = LogManager.getLogger(); // logger
     public static ArrayList<File> cache = new ArrayList<>();     // file cache representation
-    private HashSet<String> words = new HashSet<>();         // step 1 words
+    private HashSet<VocabItem> words = new HashSet<>();             // step 1 words
 
     /**
      * Checks if there is a .ini file present for user settings.
@@ -139,22 +139,31 @@ public class App extends Application {
      * @param unparsedLyrics unparsed lyrics
      */
     private void addParsedWordsToList(String unparsedLyrics) {
-        Tokenizer tokenizer = new Tokenizer();
-
-        // Create tokens
-        List<Token> tokens = tokenizer.tokenize(unparsedLyrics);
-
-        // TODO: Filter out below incorrect items
-        //                01:23:51.140 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  　
-//        01:27:18.183 [JavaFX Application Thread] - DEBUG com.dbarenholz.asvc.App - Added word:  　
-
-        tokens.stream()
+        new Tokenizer()
+                .tokenize(unparsedLyrics)
+                .stream()
                 .filter(token -> !token.getWrittenBaseForm().matches("([\u3041-\u3093\u30a1-\u30f3]+)")) // kana
+                .filter(token -> !token.getWrittenBaseForm().matches("[0-9]*"))                          // numbers
                 .filter(token -> !token.getWrittenBaseForm().matches("\\*"))                             // *
                 .filter(token -> !token.getWrittenBaseForm().matches("\\["))                             // [
                 .filter(token -> !token.getWrittenBaseForm().matches("]"))                               // ]
                 .filter(token -> !token.getWrittenBaseForm().matches("　"))                              // (space)
-                .forEach(token -> words.add(token.getWrittenBaseForm()));
+                .filter(token -> !token.getWrittenBaseForm().matches("”"))                               // ”
+                .filter(token -> !token.getWrittenBaseForm().matches("“"))                               // “
+                .filter(token -> !token.getWrittenBaseForm().matches("）"))                              // ）
+                .filter(token -> !token.getWrittenBaseForm().matches("「"))                              // 「
+                .filter(token -> !token.getWrittenBaseForm().matches("」"))                              // 」
+                .filter(token -> !token.getWrittenBaseForm().matches("『"))                              // 『
+                .filter(token -> !token.getWrittenBaseForm().matches("（"))                              // （
+                .filter(token -> !token.getWrittenBaseForm().matches("、"))                              // 、
+                .filter(token -> !token.getWrittenBaseForm().matches("。"))                              // 。
+                .filter(token -> !token.getWrittenBaseForm().matches("!"))                               // !
+                .filter(token -> !token.getWrittenBaseForm().matches("F"))                               // F
+                .filter(token -> !token.getWrittenBaseForm().matches("J"))                               // J
+                .filter(token -> !token.getWrittenBaseForm().matches("M"))                               // M
+                .filter(token -> !token.getWrittenBaseForm().matches("・"))                              // ・
+                .map(token -> new VocabItem(token.getWrittenBaseForm(), token.getKanaBase()))
+                .forEach(vocabItem -> words.add(vocabItem));
         words.forEach(word -> logger.debug("Added word:  {}", word));
     }
 
