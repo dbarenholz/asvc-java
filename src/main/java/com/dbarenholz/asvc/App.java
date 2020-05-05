@@ -6,6 +6,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -16,11 +18,14 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -126,7 +131,15 @@ public class App extends Application {
      * @return {@code true} if there is a useable internet connection, {@code false} otherwise.
      */
     private boolean internetAvailable() {
-        // TODO: Check if internet connection is available.
+        try {
+            final URL url = new URL("https://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            conn.getInputStream().close();
+            return true;
+        } catch (Exception e) {
+            logger.debug("Internet is not available: Cannot scrape!");
+        }
         return false;
     }
 
@@ -160,7 +173,8 @@ public class App extends Application {
                 .filter(token -> !token.getWrittenBaseForm().matches("M"))                               // M
                 .filter(token -> !token.getWrittenBaseForm().matches("・"))                              // ・
                 .map(token -> new VocabItem(token.getWrittenBaseForm(), token.getKanaBase()))
-                .forEach(vocabItem -> words.add(vocabItem));
+                .filter(vocabItem -> !words.contains(vocabItem)) // TODO: Fix contains with VocabItem
+                .forEach(newVocabItem -> words.add(newVocabItem));
         words.forEach(word -> logger.debug("Added word:  {}", word));
     }
 
@@ -332,7 +346,15 @@ public class App extends Application {
         CheckBox audioOJAD = new CheckBox("Use (generated) audio from OJAD");
 
         GridPane internetPane = new GridPane();
-        Label noInternetLabel = new Label("Internet is not available at the moment...");
+
+        Label  noInternetLabel = null;
+
+        if (internetAvailable()) {
+            noInternetLabel = new Label("Internet is available!");
+        } else {
+            noInternetLabel = new Label("Internet is NOT available at the moment...");
+        }
+
         Button retryInternetButton = new Button("Retry Connection");
         internetPane.add(noInternetLabel, 0, 0);
         internetPane.add(retryInternetButton, 0, 1);
@@ -385,17 +407,35 @@ public class App extends Application {
      * @return the layout of this step.
      */
     private ScrollPane step2(HBox root) {
-        // TODO: Set scroll direction to vertical
         ScrollPane container = new ScrollPane();
-        VBox internalContainer = new VBox();
+        container.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        container.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        GridPane internalContainer = new GridPane();
 
         Label stepTwoLabel = new Label("Step 2");
         Label stepTwoSubLabel = new Label("Check parsed words!");
+        Label pressDelete = new Label("Press the 'delete' button to remove incorrectly parsed words.");
 
-        ListView<String> parsedWordsList = new ListView<String>();
-        // TODO: add actual items to list in stead of test thing
-        parsedWordsList.getItems().add("Test item");
-        parsedWordsList.getItems().add("Test item 2");
+        ListView<String> parsedWordsList = new ListView<>();
+        parsedWordsList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        // Add all words to the list
+        words.stream().map(VocabItem::getKanji).forEach(kanji -> parsedWordsList.getItems().add(kanji));
+        Collections.sort(parsedWordsList.getItems());
+
+        // Allow deleting of words
+        parsedWordsList.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (parsedWordsList.getItems().size() != 1) {
+                if (event.getCode().equals(KeyCode.DELETE)) {
+                    List<String> itemsToDelete = parsedWordsList.getSelectionModel().getSelectedItems();
+
+                    for (String itemToDelete : itemsToDelete) {
+                        parsedWordsList.getItems().removeAll(itemToDelete);
+                    }
+                }
+            }
+        });
 
         ButtonBar navigation = new ButtonBar();
         Button nextButton = new Button("Nice!");
@@ -403,10 +443,11 @@ public class App extends Application {
         navigation.getButtons().add(previousButton);
         navigation.getButtons().add(nextButton);
 
-        internalContainer.getChildren().add(stepTwoLabel);
-        internalContainer.getChildren().add(stepTwoSubLabel);
-        internalContainer.getChildren().add(parsedWordsList);
-        internalContainer.getChildren().add(navigation);
+        internalContainer.add(stepTwoLabel, 0, 0);
+        internalContainer.add(stepTwoSubLabel, 0, 1);
+        internalContainer.add(parsedWordsList, 0, 2);
+        internalContainer.add(pressDelete, 1, 2);
+        internalContainer.add(navigation, 0, 3);
 
         container.setContent(internalContainer);
 
@@ -422,7 +463,11 @@ public class App extends Application {
 
         previousButton.setOnAction(e -> {
             // TODO: Undo from 2 to 1
-            // add here.
+            List<String> itemsToDelete = parsedWordsList.getItems();
+
+            for (String itemToDelete : itemsToDelete) {
+                parsedWordsList.getItems().removeAll(itemToDelete);
+            }
 
             // Move to previous view
             Region nextContainer = step1(root);
