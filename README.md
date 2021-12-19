@@ -1,5 +1,7 @@
 # asvc -- AnkiSongVocabCreator
 
+**NOTE: This project is abandoned. Since I eventually want the tool to have a _usable_ UI, I have decided to reimplement it using Electron. You can find that repo under [dbarenholz/asvc](https://github.com/dbarenholz/asvc).**
+
 ## Introduction
 asvc, AnkiSongVocabCreator, is a piece of software that attempts to make it easier to create Anki vocabulary decks from (Japanese) songs. Essentially, one somehow gets lyrics, or other text, and then the program presents either a neatly formatted CSV for import into e.g. Akebi on Android, or an APKG for import into Anki.
 
